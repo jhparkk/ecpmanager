@@ -15,13 +15,13 @@ func TestGetAvailablePort(t *testing.T) {
 
 	p, err := GetAvailablePort("127.0.0.1")
 	if err != nil {
-		prdebug.Println(err)
+		t.Fatal(err)
 	}
 	prdebug.Println("1. port : ", p)
 
 	p, err = GetAvailablePort("127.0.0.1")
 	if err != nil {
-		prdebug.Println(err)
+		t.Fatal(err)
 	}
 	prdebug.Println("2. port : ", p)
 }

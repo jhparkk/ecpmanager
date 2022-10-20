@@ -44,7 +44,6 @@ func TestRunWorker(t *testing.T) {
 	for i := 1; i < 10; i++ {
 		tworker := NewTestWorker(i)
 		tworker.worker.Start()
-
 	}
 
 	time.Sleep(time.Second)

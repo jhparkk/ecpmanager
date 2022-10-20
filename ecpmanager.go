@@ -15,6 +15,7 @@ import (
 type EcpManager struct {
 	worker       *worker.Worker
 	homePath     string
+	clientInfo   ecp.ClientInfo
 	ecpLsnrInfos []ecp.EcpLsnrInfo
 	db           *gorm.DB
 }
@@ -32,9 +33,14 @@ func (em *EcpManager) In() (int, error) {
 		return -1, err
 	}
 	em.db = db
-
+	// get a client_infos row
+	if err = em.db.Table(ecp.TableNameClientInfo).First(&em.clientInfo).Error; err != nil {
+		return -1, err
+	}
 	// get ecp_lsnr_infos table rows
-	em.db.Table(ecp.TableNameEcpLsnrInfo).Find(&em.ecpLsnrInfos)
+	if err = em.db.Table(ecp.TableNameEcpLsnrInfo).Find(&em.ecpLsnrInfos).Error; err != nil {
+		return -1, err
+	}
 
 	var eli ecp.EcpLsnrInfo
 	for _, eli = range em.ecpLsnrInfos {
@@ -56,6 +62,7 @@ func (em *EcpManager) In() (int, error) {
 		// get lsnr port
 		eli.EcpIp = "127.0.0.1"
 		eli.EcpLsnrPid = 0
+		prdebug.Println("1. eli.ecpPort : ", eli.EcpPort)
 		if eli.EcpPort == 0 {
 			port, err := ecp.GetAvailablePort("127.0.0.1")
 			if err != nil {
@@ -68,7 +75,7 @@ func (em *EcpManager) In() (int, error) {
 			}
 			eli.EcpPort = port
 		}
-
+		prdebug.Println("2. eli.ecpPort : ", eli.EcpPort)
 		err = em.startEcpLsnrProc(&eli)
 		if err != nil {
 			worker.Logger.Printf("[%d] startEcpLsnrProc failed : %s\n", os.Getpid(), err)
@@ -86,7 +93,11 @@ func (em *EcpManager) Run() (int, error) {
 	// check ecp_lsnr_infos table rows
 	// reserved - I:new / D:deleted / R:running
 	//
-	em.db.Table(ecp.TableNameEcpLsnrInfo).Find(&em.ecpLsnrInfos)
+	if err := em.db.Table(ecp.TableNameEcpLsnrInfo).Find(&em.ecpLsnrInfos).Error; err != nil {
+		worker.Logger.Printf("[%d] failed to select table ecp_lsnr_infos : %s\n", os.Getpid(), err)
+		em.worker.Sleep(5)
+		return 0, nil
+	}
 	var eli ecp.EcpLsnrInfo
 	for _, eli = range em.ecpLsnrInfos {
 		switch eli.Reserved {
@@ -169,7 +180,7 @@ func (em *EcpManager) Run() (int, error) {
 				go func(pid int) {
 					err := ecp.StopLsnrProc(eli.EcpLsnrPid)
 					if err != nil {
-						worker.Logger.Printf("[%d] startEcpLsnrProc failed : %s\n", os.Getpid(), err)
+						worker.Logger.Printf("[%d] StopLsnrProc[%d] failed : %s\n", os.Getpid(), eli.EcpLsnrPid, err)
 					}
 				}(eli.EcpLsnrPid)
 				eli.EcpLsnrPid = 0
@@ -226,8 +237,14 @@ func (em *EcpManager) Out() (int, error) {
 }
 
 func (em *EcpManager) startEcpLsnrProc(eli *ecp.EcpLsnrInfo) error {
-
-	pid, err := ecp.StartLsnrProc(em.homePath, eli.EcpIp, strconv.Itoa(int(eli.EcpPort)), eli.RelayIp, strconv.Itoa(int(eli.RelayPort)))
+	pid, err := ecp.StartLsnrProc(
+		em.homePath,
+		eli.EcpIp,
+		strconv.Itoa(int(eli.EcpPort)),
+		eli.RelayIp,
+		strconv.Itoa(int(eli.RelayPort)),
+		em.clientInfo.UserId,
+		em.clientInfo.IpMacAddr)
 	if err != nil {
 		return err
 	}

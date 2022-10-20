@@ -13,7 +13,7 @@ func main() {
 	prdebug.Println("start program")
 
 	if len(os.Args) != 2 {
-		log.Fatal("ecp_manager <ecp_home_path>")
+		log.Fatal("ecpmanager <ecp_home_path>")
 	}
 
 	homePath := os.Args[1]

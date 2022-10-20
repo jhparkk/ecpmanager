@@ -33,8 +33,8 @@ func IsLsnrProcAlive(pid int) bool {
 	return true
 }
 
-func StartLsnrProc(homePath, lsnrIp, lsnrPort, relayIp, relayPort string) (pid int, err error) {
-	cmd := exec.Command(homePath+"/"+BinNameEcpLocalLsnr, lsnrIp, lsnrPort, relayIp, relayPort)
+func StartLsnrProc(homePath, lsnrIp, lsnrPort, relayIp, relayPort, uId, ipMacAddr string) (pid int, err error) {
+	cmd := exec.Command(homePath+"/"+BinNameEcpLocalLsnr, lsnrIp, lsnrPort, relayIp, relayPort, uId, ipMacAddr)
 	err = cmd.Start()
 	if err != nil {
 		return 0, err

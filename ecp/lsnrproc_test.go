@@ -15,7 +15,7 @@ func TestIsLsnrProcAlive(t *testing.T) {
 
 func TestStartLsnrProc(t *testing.T) {
 	prdebug.PrDebug = true
-	pid, err := StartLsnrProc("C:/Users/dbmas/workspace/golang/ecp_manager", "127.0.0.1", "25432", "192.168.10.214", "15432")
+	pid, err := StartLsnrProc("C:/Users/dbmas/workspace/golang/ecp_manager", "127.0.0.1", "25432", "192.168.10.214", "15432", "test_uid", "38-7A-0E-2F-4A-D1")
 	if err != nil {
 		prdebug.Println("StartLsnrProc failed : ", err)
 	}
@@ -29,6 +29,6 @@ func TestStopLsnrProc(t *testing.T) {
 	pid := 18428
 	err := StopLsnrProc(pid)
 	if err != nil {
-		prdebug.Println("StopLsnrProc failed : ", err)
+		t.Fatal(err)
 	}
 }

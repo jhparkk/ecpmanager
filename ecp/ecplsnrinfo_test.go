@@ -26,8 +26,7 @@ func TestCreateELI(t *testing.T) {
 
 	tx := db.Create(&elis)
 	if tx.Error != nil {
-		prdebug.Println(err)
-		return
+		t.Fatal(err)
 	}
 
 	eli := EcpLsnrInfo{InfoId: 2}
@@ -36,7 +35,7 @@ func TestCreateELI(t *testing.T) {
 	// }
 	db.Delete(&EcpLsnrInfo{}, 2)
 	if err = db.Table("ecp_lsnr_infos").Where(11).Delete(&EcpLsnrInfo{}).Error; err != nil {
-		prdebug.Println(err)
+		t.Fatal(err)
 	}
 	prdebug.Println("delete : ", eli)
 
@@ -45,18 +44,21 @@ func TestCreateELI(t *testing.T) {
 	for _, eli := range selectElis {
 		eli.Reserved = "updated"
 		if err = db.Table("ecp_lsnr_infos").Where(eli.InfoId).Save(&eli).Error; err != nil {
-			prdebug.Println("save err : ", err)
+			t.Fatal(err)
 		}
 
 		tx := db.Table("ecp_lsnr_infos").Where(
 			map[string]interface{}{
 				"info_id": eli.InfoId,
 			})
-
 		if tx.Error != nil {
-			prdebug.Println("find err : ", err)
+			t.Fatal(err)
 		}
-		tx.Save(&eli)
+
+		tx = tx.Save(&eli)
+		if tx.Error != nil {
+			t.Fatal(err)
+		}
 
 		prdebug.Println(eli)
 

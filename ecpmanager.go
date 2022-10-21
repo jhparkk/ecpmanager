@@ -15,7 +15,6 @@ import (
 type EcpManager struct {
 	worker       *worker.Worker
 	homePath     string
-	clientInfo   ecp.ClientInfo
 	ecpLsnrInfos []ecp.EcpLsnrInfo
 	db           *gorm.DB
 }
@@ -33,10 +32,6 @@ func (em *EcpManager) In() (int, error) {
 		return -1, err
 	}
 	em.db = db
-	// get a client_infos row
-	if err = em.db.Table(ecp.TableNameClientInfo).First(&em.clientInfo).Error; err != nil {
-		return -1, err
-	}
 	// get ecp_lsnr_infos table rows
 	if err = em.db.Table(ecp.TableNameEcpLsnrInfo).Find(&em.ecpLsnrInfos).Error; err != nil {
 		return -1, err
@@ -44,6 +39,9 @@ func (em *EcpManager) In() (int, error) {
 
 	var eli ecp.EcpLsnrInfo
 	for _, eli = range em.ecpLsnrInfos {
+		if eli.ListenAddrId == 0 {
+			continue
+		}
 		//
 		// reserved - I:new / D:deleted / R:running
 		// skip deleted
@@ -100,6 +98,10 @@ func (em *EcpManager) Run() (int, error) {
 	}
 	var eli ecp.EcpLsnrInfo
 	for _, eli = range em.ecpLsnrInfos {
+		if eli.ListenAddrId == 0 {
+			continue
+		}
+
 		switch eli.Reserved {
 		case "R":
 			{
@@ -242,9 +244,7 @@ func (em *EcpManager) startEcpLsnrProc(eli *ecp.EcpLsnrInfo) error {
 		eli.EcpIp,
 		strconv.Itoa(int(eli.EcpPort)),
 		eli.RelayIp,
-		strconv.Itoa(int(eli.RelayPort)),
-		em.clientInfo.UserId,
-		em.clientInfo.IpMacAddr)
+		strconv.Itoa(int(eli.RelayPort)))
 	if err != nil {
 		return err
 	}

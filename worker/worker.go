@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -102,17 +103,18 @@ func (w *Worker) entry() {
 	ret, err := w.work.In()
 	if err != nil {
 		if Logger != nil {
-			Logger.Println(w.name+"_"+strconv.Itoa(w.wid), " - In() failed : ", err)
+			Logger.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - In() failed : ", err)
 		} else {
-			fmt.Println(w.name+"_"+strconv.Itoa(w.wid), " - In() failed : ", err)
+			fmt.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - In() failed : ", err)
 		}
+		w.wg.Done()
 		return
 	}
 	if ret < 0 {
 		if Logger != nil {
-			Logger.Println(w.name+"_"+strconv.Itoa(w.wid), " - In() failed : invalid ret:", ret)
+			Logger.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - In() failed : invalid ret:", ret)
 		} else {
-			fmt.Println(w.name+"_"+strconv.Itoa(w.wid), " - In() failed : invalid ret:", ret)
+			fmt.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - In() failed : invalid ret:", ret)
 		}
 	}
 
@@ -130,9 +132,9 @@ func (w *Worker) entry() {
 		ret, err = w.work.Run()
 		if err != nil {
 			if Logger != nil {
-				Logger.Println(w.name+"_"+strconv.Itoa(w.wid), " - Run() failed : ", err)
+				Logger.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - Run() failed : ", err)
 			} else {
-				fmt.Println(w.name+"_"+strconv.Itoa(w.wid), " - Run() failed : ", err)
+				fmt.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - Run() failed : ", err)
 			}
 			break
 		}
@@ -145,17 +147,17 @@ func (w *Worker) entry() {
 	ret, err = w.work.Out()
 	if err != nil {
 		if Logger != nil {
-			Logger.Println(w.name+"_"+strconv.Itoa(w.wid), " - Out() failed : ", err)
+			Logger.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - Out() failed : ", err)
 		} else {
-			fmt.Println(w.name+"_"+strconv.Itoa(w.wid), " - Out() failed : ", err)
+			fmt.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - Out() failed : ", err)
 		}
 	}
 
 	if ret < 0 {
 		if Logger != nil {
-			Logger.Println(w.name+"_"+strconv.Itoa(w.wid), " - Out() failed : invalid ret:", ret)
+			Logger.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - Out() failed : invalid ret:", ret)
 		} else {
-			fmt.Println(w.name+"_"+strconv.Itoa(w.wid), " - Out() failed : invalid ret:", ret)
+			fmt.Println("[", os.Getpid(), "]"+w.name+"_"+strconv.Itoa(w.wid), " - Out() failed : invalid ret:", ret)
 		}
 	}
 

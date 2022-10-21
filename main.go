@@ -25,6 +25,8 @@ func main() {
 	worker.Logger = log.New(logFile, "" /*no prefix*/, log.LstdFlags|log.Lshortfile)
 	manager := NewEcpManager(homePath)
 
-	manager.worker.Start()
+	if _, err = manager.worker.Start(); err != nil {
+		log.Fatal("Start() failed : ", err)
+	}
 	manager.worker.Wait()
 }

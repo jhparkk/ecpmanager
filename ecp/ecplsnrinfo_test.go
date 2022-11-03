@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"sinsiway.com/golang/ecp_manager/prdebug"
+	"sinsiway.com/golang/ecpmanager/prdebug"
 )
 
 func TestCreateELI(t *testing.T) {

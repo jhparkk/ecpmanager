@@ -3,7 +3,7 @@ package ecp
 import (
 	"testing"
 
-	"sinsiway.com/golang/ecp_manager/prdebug"
+	"sinsiway.com/golang/ecpmanager/prdebug"
 )
 
 func TestGetAvailablePort(t *testing.T) {

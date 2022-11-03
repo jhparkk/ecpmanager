@@ -1,4 +1,4 @@
-module sinsiway.com/golang/ecp_manager
+module sinsiway.com/golang/ecpmanager
 
 go 1.19
 

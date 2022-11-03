@@ -7,9 +7,9 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"sinsiway.com/golang/ecp_manager/ecp"
-	"sinsiway.com/golang/ecp_manager/prdebug"
-	"sinsiway.com/golang/ecp_manager/worker"
+	"sinsiway.com/golang/ecpmanager/ecp"
+	"sinsiway.com/golang/ecpmanager/prdebug"
+	"sinsiway.com/golang/ecpmanager/worker"
 )
 
 type EcpManager struct {
@@ -89,7 +89,7 @@ func (em *EcpManager) Run() (int, error) {
 
 	//
 	// check ecp_lsnr_infos table rows
-	// reserved - I:new / D:deleted / R:running
+	// reserved - I:new / U: updated / D:deleted / R:running
 	//
 	if err := em.db.Table(ecp.TableNameEcpLsnrInfo).Find(&em.ecpLsnrInfos).Error; err != nil {
 		worker.Logger.Printf("[%d] failed to select table ecp_lsnr_infos : %s\n", os.Getpid(), err)
@@ -98,10 +98,6 @@ func (em *EcpManager) Run() (int, error) {
 	}
 	var eli ecp.EcpLsnrInfo
 	for _, eli = range em.ecpLsnrInfos {
-		if eli.ListenAddrId == 0 {
-			continue
-		}
-
 		switch eli.Reserved {
 		case "R":
 			{

@@ -8,7 +8,7 @@ import (
 
 	ps "github.com/mitchellh/go-ps"
 
-	"sinsiway.com/golang/ecp_manager/prdebug"
+	"sinsiway.com/golang/ecpmanager/prdebug"
 )
 
 const BinNameEcpLocalLsnr = "ecplocallsnr.exe"
